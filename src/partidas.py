@@ -77,6 +77,30 @@ def top_ratio_medio_personajes(partidas:List[Partida], n:int)->List[str]:
     # Devolver solo los n personajes con mejor ratio
     return [personaje[0] for personaje in personajes_ordenados[:n]]
 
+def enemigos_mas_debiles(partidas: List[Partida], personaje:str): 
+    ganadas = {}
+    for partida in partidas:
+        perdedor = None
+        if (personaje == partida.ganador and personaje == partida.pj1):
+            perdedor = partida.pj2
+        elif (personaje == partida.ganador and personaje == partida.pj2):
+            perdedor = partida.pj1
+        
+        if (perdedor in ganadas) and (not perdedor is None):
+            ganadas[perdedor] = ganadas[perdedor] + 1
+        elif (not (perdedor in ganadas)) and (not perdedor is None):
+            ganadas[perdedor] = 1
+
+    max_derrotas = max(ganadas.values())
+    perdedores = []
+    for jugador, derrotas in ganadas.items():
+        if derrotas==max_derrotas:
+            perdedores.append(jugador)
+    
+    return perdedores, max_derrotas
+    
+    
+
 if __name__ == "__main__":
     ruta_fichero = Path("data/games.csv")
     if not ruta_fichero.exists():
@@ -85,3 +109,5 @@ if __name__ == "__main__":
     print(partidas)
     print("La partida más rápida: ",victora_mas_rapida(partidas))
     print("Los jugadores con menos ratio medio de victorias: ",top_ratio_medio_personajes(partidas, 3))
+    
+    print(enemigos_mas_debiles(partidas=partidas, personaje="Ken"))
