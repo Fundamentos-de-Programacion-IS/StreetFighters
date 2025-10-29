@@ -98,16 +98,66 @@ def enemigos_mas_debiles(partidas: List[Partida], personaje:str):
             perdedores.append(jugador)
     
     return perdedores, max_derrotas
+
+def movimientos_comunes(partidas: List[Partida], p1:str, p2:str):
+    '''movimientos_comunes: recibe una lista de tuplas de tipo
+    Partida y dos cadenas de texto personaje1 y personaje2, y 
+    devuelve una lista con los nombres de aquellos movimientos que se 
+    repitan entre personaje1 y `personaje2`. Tenga solo en cuenta los 
+    movimientos que aparecen listados en los campos `golpes_pj1` y `golpes_pj2`
+    '''
+    movimientos_comunes = {}
+    for partida in partidas:
+        if partida.pj1==p1 or partida.pj1==p2:
+            for movimiento in partida.golpes_pj1:
+                if not movimiento in movimientos_comunes:
+                    movimientos_comunes[movimiento] = 1
+                else:
+                    movimientos_comunes[movimiento] = movimientos_comunes[movimiento] +1
+        elif partida.pj2==p1 or partida.pj2==p2:
+            for movimiento in partida.golpes_pj2:
+                if not movimiento in movimientos_comunes:
+                    movimientos_comunes[movimiento] = 1
+                else:
+                    movimientos_comunes[movimiento] = movimientos_comunes[movimiento] +1
     
+    max_movimiento = max(movimientos_comunes.values())
+    movimientos = []
+    for jugador, derrotas in movimientos_comunes.items():
+        if derrotas==max_movimiento:
+            movimientos.append(jugador)
+    return movimientos
+
+def dia_mas_combo_finish(partidas:List[Partida]):
+
+    def int_to_weekday(i:int)-> str: 
+        weekday = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sabado", "Domingo"]
+        try:
+            return weekday[i]
+        except:
+            raise ValueError
+
+    combo_days = {}
+    for partida in partidas:
+        dia = int_to_weekday(partida.fecha_hora.weekday())
+        if partida.combo_finish:
+            if not dia in combo_days:
+                combo_days[dia] = partida.combo_finish
+            else:
+                combo_days[dia] = combo_days[dia] + 1 
     
+    max_dia = max(combo_days.values())
+    dias = []
+    for dia, combos in combo_days.items():
+        if combos==max_dia:
+            dias.append(dia)
+
+    return dias
 
 if __name__ == "__main__":
     ruta_fichero = Path("data/games.csv")
     if not ruta_fichero.exists():
         print(f"El fichero {ruta_fichero} no existe.")
     partidas = lee_fichero(ruta_fichero)
-    print(partidas)
-    print("La partida más rápida: ",victora_mas_rapida(partidas))
-    print("Los jugadores con menos ratio medio de victorias: ",top_ratio_medio_personajes(partidas, 3))
-    
-    print(enemigos_mas_debiles(partidas=partidas, personaje="Ken"))
+    movimientos_comunes(partidas,"Ryu","Guile")
+    print("El dia con más combos es:", dia_mas_combo_finish(partidas=partidas))
